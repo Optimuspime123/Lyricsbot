@@ -6,7 +6,7 @@ import telegram
 import json
 
 # Replace YOUR_TELEGRAM_BOT_TOKEN with your bot's token
-bot = telegram.Bot(token='YOUR_TELEGRAM_BOT_TOKEN')
+bot = telegram.Bot(token='5898438900:AAEYr7RKj3rpX-f4ZayS0nCBKPBbErQZRVs')
 
 # Replace YOUR_GENIUS_API_TOKEN with your Genius API token
 api_key = 'SuKMl854hIUgGOTrJTAw12mHLB8nTEckXEKzM-ngHaU-lQD2xQopqTeBtIjsiKnm'
