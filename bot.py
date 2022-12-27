@@ -9,7 +9,7 @@ import json
 bot = telegram.Bot(token='YOUR_TELEGRAM_BOT_TOKEN')
 
 # Replace YOUR_GENIUS_API_TOKEN with your Genius API token
-api_key = 'YOUR_GENIUS_API_TOKEN'
+api_key = 'SuKMl854hIUgGOTrJTAw12mHLB8nTEckXEKzM-ngHaU-lQD2xQopqTeBtIjsiKnm'
 
 # This function will be called to search for lyrics
 def search_lyrics(song_name, artist_name):
