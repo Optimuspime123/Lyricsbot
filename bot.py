@@ -1,12 +1,46 @@
 # Install the required libraries
-!pip install requests telegram
+!pip install requests telegram json
 
-import os
 import requests
 import telegram
+import json
 
 # Replace YOUR_TELEGRAM_BOT_TOKEN with your bot's token
 bot = telegram.Bot(token='YOUR_TELEGRAM_BOT_TOKEN')
+
+# Replace YOUR_GENIUS_API_TOKEN with your Genius API token
+api_key = 'YOUR_GENIUS_API_TOKEN'
+
+# This function will be called to search for lyrics
+def search_lyrics(song_name, artist_name):
+  # Call the Genius API to search for the song
+  api_endpoint = 'https://api.genius.com/search'
+  params = {
+    'q': f'{song_name} {artist_name}',
+    'access_token': api_key
+  }
+  response = requests.get(api_endpoint, params=params)
+  data = response.json()
+
+  # Get the first song from the search results
+  song = data['response']['hits'][0]['result']
+
+  # Get the song's lyrics
+  song_id = song['id']
+  song_url = song['url']
+  lyrics_response = requests.get(song_url, headers={'Authorization': f'Bearer {api_key}'})
+  lyrics_page = lyrics_response.text
+  lyrics = extract_lyrics_from_page(lyrics_page)
+
+  return lyrics
+
+# This function will be called to extract the lyrics from the song's HTML page
+def extract_lyrics_from_page(lyrics_page):
+  # Extract the lyrics from the HTML page
+  start_index = lyrics_page.index('<!--sse-->')
+  end_index = lyrics_page.index('<!--/sse-->')
+  lyrics = lyrics_page[start_index:end_index].replace('<!--sse-->', '').strip()
+  return lyrics
 
 # This function will be called whenever the bot receives a message
 def handle_message(message):
@@ -16,14 +50,12 @@ def handle_message(message):
     chat_id = message.chat.id
     song_name = message.text[len('/lyrics'):].strip()
     
-    # Call the Musixmatch API to search for the song
-    api_key = 'YOUR_MUSIXMATCH_API_KEY'
-    url = f'https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?q_track={song_name}&f_has_lyrics_sync=1&apikey={api_key}'
-    response = requests.get(url)
-    lyrics = response.json()['message']['body']['lyrics']['lyrics_body']
+    # Call the Genius API to search for the song
+    lyrics = search_lyrics(song_name, '')
     
     # Send the lyrics back to the user
     bot.send_message(chat_id=chat_id, text=lyrics)
+
 
 # Start the bot's message loop
 bot.set_update_listener(handle_message)
