@@ -1,5 +1,5 @@
 # Install the required libraries
-pip install requests telegram json
+pip install requests, telegram, json
 
 import requests
 import telegram
