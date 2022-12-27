@@ -27,19 +27,19 @@ def search_lyrics(song_name, artist_name):
 
   # Get the song's lyrics
   song_id = song['id']
-  song_url = song['url']
-  lyrics_response = requests.get(song_url, headers={'Authorization': f'Bearer {api_key}'})
-  lyrics_page = lyrics_response.text
-  lyrics = extract_lyrics_from_page(lyrics_page)
+  api_endpoint = f'https://api.genius.com/songs/{song_id}/lyric_annotations'
+  params = {'access_token': api_key}
+  response = requests.get(api_endpoint, params=params)
+  data = response.json()
+  annotations = data['response']['lyric_annotations']
 
-  return lyrics
+  # Format the synced lyrics
+  lyrics = ''
+  for annotation in annotations:
+    line = annotation['lyric'].strip()
+    time = annotation['time']
+    lyrics += f'[{time}] {line}\n'
 
-# This function will be called to extract the lyrics from the song's HTML page
-def extract_lyrics_from_page(lyrics_page):
-  # Extract the lyrics from the HTML page
-  start_index = lyrics_page.index('<!--sse-->')
-  end_index = lyrics_page.index('<!--/sse-->')
-  lyrics = lyrics_page[start_index:end_index].replace('<!--sse-->', '').strip()
   return lyrics
 
 # This function will be called whenever the bot receives a message
