@@ -71,14 +71,14 @@ def synced_lyrics(update, context):
   update.message.reply_text(lyrics)
 
 def start(update, context):
-  # Send a "good start" message to the user
+  # Send a " start" message to the user
   update.message.reply_text("Hello! I'm a lyrics bot. Use the /lyrics command to get the lyrics for a song. Use the /slyrics command to get synced lyrics for a song.")
 
 def main():
   # Create the Updater and pass it your bot's token.
   # Make sure to set use_context=True to use the new context based callbacks
   # Post version 12 this will no longer be necessary
-  updater = Updater("YOUR_BOT_TOKEN", use_context=True)
+  updater = Updater("5558701778:AAEkwVm9oifSFMCRIyrsdVY0zq1JbzRZ1uc", use_context=True)
 
   # Get the dispatcher to register handlers
   dp = updater.dispatcher
