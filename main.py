@@ -2,7 +2,7 @@ import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Replace YOUR_API_KEY with your Musixmatch API key
-API_KEY = "YOUR_API_KEY"
+API_KEY = "41a14b0d4d727720f9553b7f5c0aff25"
 
 def get_lyrics(artist, song_title):
   # Make a request to the Musixmatch API to search for the song
