@@ -48,22 +48,39 @@ def lyrics(update, context):
   # Send the lyrics to the user
   update.message.reply_text(lyrics)
 
+def synced_lyrics(update, context):
+  # Extract the artist and song title from the user's message
+  message = update.message.text
+  parts = message.split(" - ")
+  if len(parts) != 2:
+    update.message.reply_text("Invalid format. Please use the format 'Artist - Song Title'")
+    return
+  artist = parts[0]
+  song_title = parts[1]
+
+  # Get the synced lyrics for the song
+  lyrics = get_lyrics(artist, song_title, sync=True)
+
+  # Send the synced lyrics to the user
+  update.message.reply_text(lyrics)
+
+
 def main():
+  def main():
   # Create the Updater and pass it your bot's token.
   # Make sure to set use_context=True to use the new context based callbacks
   # Post version 12 this will no longer be necessary
-  updater = Updater("5898438900:AAH4oo2Ok1elgzd0gDgJqPsbJ0y5mFCEOZM", use_context=True)
+  updater = Updater("YOUR_BOT_TOKEN", use_context=True)
 
   # Get the dispatcher to register handlers
   dp = updater.dispatcher
 
-  # Add command handler to respond to the user's /lyrics command
+  # Add command handlers to respond to the user's /lyrics and /slyrics commands
   dp.add_handler(CommandHandler("lyrics", lyrics))
+  dp.add_handler(CommandHandler("slyrics", synced_lyrics))
 
   # Add a message handler to respond to user messages that contain the string "lyrics"
   dp.add_handler(MessageHandler(Filters.text & Filters.regex(r'lyrics'), lyrics))
 
   # Start the bot
   updater.start_polling()
-
- 
