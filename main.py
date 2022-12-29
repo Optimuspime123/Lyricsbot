@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 # Replace YOUR_API_KEY with your Musixmatch API key
 API_KEY = "41a14b0d4d727720f9553b7f5c0aff25"
 
-def get_lyrics(artist, song_title):
+def get_lyrics(artist, song_title, sync=False):
   # Make a request to the Musixmatch API to search for the song
   search_url = "https://api.musixmatch.com/ws/1.1/track.search"
   search_params = {
@@ -24,11 +24,17 @@ def get_lyrics(artist, song_title):
       "apikey": API_KEY,
       "track_id": track_id
   }
+  if sync:
+    lyrics_params["f_has_lyrics_crowd"] = 1
+    lyrics_params["f_lyrics_language"] = "en"
   lyrics_response = requests.get(lyrics_url, params=lyrics_params)
   lyrics_data = lyrics_response.json()
 
   # Extract the lyrics from the API response
-  lyrics = lyrics_data["message"]["body"]["lyrics"]["lyrics_body"]
+  if sync:
+    lyrics = lyrics_data["message"]["body"]["lyrics"]["lyric_crowd"]
+  else:
+    lyrics = lyrics_data["message"]["body"]["lyrics"]["lyrics_body"]
 
   return lyrics
 
@@ -71,7 +77,6 @@ def main():
   # Make sure to set use_context=True to use the new context based callbacks
   # Post version 12 this will no longer be necessary
   updater = Updater("YOUR_BOT_TOKEN", use_context=True)
-
   # Get the dispatcher to register handlers
   dp = updater.dispatcher
 
@@ -83,4 +88,4 @@ def main():
   dp.add_handler(MessageHandler(Filters.text & Filters.regex(r'lyrics'), lyrics))
 
   # Start the bot
-  updater.start_polling()
+  updater.start_pollin
