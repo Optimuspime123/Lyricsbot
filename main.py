@@ -1,62 +1,69 @@
-# Install the required libraries
-pip install requests, telegram, json
-
 import requests
-import telegram
-import json
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Replace YOUR_TELEGRAM_BOT_TOKEN with your bot's token
-bot = telegram.Bot(token='5898438900:AAEYr7RKj3rpX-f4ZayS0nCBKPBbErQZRVs')
+# Replace YOUR_API_KEY with your Musixmatch API key
+API_KEY = "YOUR_API_KEY"
 
-# Replace YOUR_GENIUS_API_TOKEN with your Genius API token
-api_key = 'SuKMl854hIUgGOTrJTAw12mHLB8nTEckXEKzM-ngHaU-lQD2xQopqTeBtIjsiKnm'
-
-# This function will be called to search for lyrics
-def search_lyrics(song_name, artist_name):
-  # Call the Genius API to search for the song
-  api_endpoint = 'https://api.genius.com/search'
-  params = {
-    'q': f'{song_name} {artist_name}',
-    'access_token': api_key
+def get_lyrics(artist, song_title):
+  # Make a request to the Musixmatch API to search for the song
+  search_url = "https://api.musixmatch.com/ws/1.1/track.search"
+  search_params = {
+      "apikey": API_KEY,
+      "q_artist": artist,
+      "q_track": song_title
   }
-  response = requests.get(api_endpoint, params=params)
-  data = response.json()
+  search_response = requests.get(search_url, params=search_params)
+  search_data = search_response.json()
 
-  # Get the first song from the search results
-  song = data['response']['hits'][0]['result']
+  # Extract the track id from the search results
+  track_id = search_data["message"]["body"]["track_list"][0]["track"]["track_id"]
 
-  # Get the song's lyrics
-  song_id = song['id']
-  api_endpoint = f'https://api.genius.com/songs/{song_id}/lyric_annotations'
-  params = {'access_token': api_key}
-  response = requests.get(api_endpoint, params=params)
-  data = response.json()
-  annotations = data['response']['lyric_annotations']
+  # Make a request to the Musixmatch API to get the lyrics for the track
+  lyrics_url = "https://api.musixmatch.com/ws/1.1/track.lyrics.get"
+  lyrics_params = {
+      "apikey": API_KEY,
+      "track_id": track_id
+  }
+  lyrics_response = requests.get(lyrics_url, params=lyrics_params)
+  lyrics_data = lyrics_response.json()
 
-  # Format the synced lyrics
-  lyrics = ''
-  for annotation in annotations:
-    line = annotation['lyric'].strip()
-    time = annotation['time']
-    lyrics += f'[{time}] {line}\n'
+  # Extract the lyrics from the API response
+  lyrics = lyrics_data["message"]["body"]["lyrics"]["lyrics_body"]
 
   return lyrics
 
-# This function will be called whenever the bot receives a message
-def handle_message(message):
-  # Check if the message is a command to download lyrics
-  if message.text.startswith('/lyrics'):
-    # Get the chat ID and the song name from the message
-    chat_id = message.chat.id
-    song_name = message.text[len('/lyrics'):].strip()
-    
-    # Call the Genius API to search for the song
-    lyrics = search_lyrics(song_name, '')
-    
-    # Send the lyrics back to the user
-    bot.send_message(chat_id=chat_id, text=lyrics)
+def lyrics(update, context):
+  # Extract the artist and song title from the user's message
+  message = update.message.text
+  parts = message.split(" - ")
+  if len(parts) != 2:
+    update.message.reply_text("Invalid format. Please use the format 'Artist - Song Title'")
+    return
+  artist = parts[0]
+  song_title = parts[1]
 
+  # Get the lyrics for the song
+  lyrics = get_lyrics(artist, song_title)
 
-# Start the bot's message loop
-bot.set_update_listener(handle_message)
-bot.polling()
+  # Send the lyrics to the user
+  update.message.reply_text(lyrics)
+
+def main():
+  # Create the Updater and pass it your bot's token.
+  # Make sure to set use_context=True to use the new context based callbacks
+  # Post version 12 this will no longer be necessary
+  updater = Updater("YOUR_BOT_TOKEN", use_context=True)
+
+  # Get the dispatcher to register handlers
+  dp = updater.dispatcher
+
+  # Add command handler to respond to the user's /lyrics command
+  dp.add_handler(CommandHandler("lyrics", lyrics))
+
+  # Add a message handler to respond to user messages that contain the string "lyrics"
+  dp.add_handler(MessageHandler(Filters.text & Filters.regex(r'lyrics'), lyrics))
+
+  # Start the bot
+  updater.start_polling()
+
+ 
