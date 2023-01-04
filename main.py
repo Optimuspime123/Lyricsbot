@@ -1,5 +1,5 @@
 import requests
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler
 
 # Replace YOUR_API_KEY with your Musixmatch API key
 API_KEY = "41a14b0d4d727720f9553b7f5c0aff25"
@@ -78,7 +78,7 @@ def main():
   # Create the Updater and pass it your bot's token.
   # Make sure to set use_context=True to use the new context based callbacks
   # Post version 12 this will no longer be necessary
-  updater = Updater("5683813486:AAHetQnrzUKWhnV-VNYQp1kTX0v1xaRrM90", use_context=True)
+  updater = Updater("5558701778:AAEkwVm9oifSFMCRIyrsdVY0zq1JbzRZ1uc", use_context=True)
 
   # Get the dispatcher to register handlers
   dp = updater.dispatcher
@@ -86,11 +86,9 @@ def main():
   # Add command handlers to respond to the user's /lyrics, /slyrics, and /start commands
   dp.add_handler(CommandHandler("lyrics", lyrics))
   dp.add_handler(CommandHandler("slyrics", synced_lyrics))
-  dp.add_handler(CommandHandler("start", start))
 
-
-  # Add a message handler to respond to user messages that contain the string "lyrics"
-  dp.add_handler(MessageHandler(Filters.text & Filters.regex(r'lyrics'), lyrics))
+  # Add a message handler to respond to all messages
+  dp.add_handler(MessageHandler(start))
 
   # Start the bot
   updater.start_polling()
